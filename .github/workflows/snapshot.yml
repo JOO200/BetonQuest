@@ -3,15 +3,8 @@ name: Create Snapshot
 # Triggered when there is a pushed or pull_request
 on:
   push:
-    tags-ignore:
-      - 'v*'
-    branches-ignore:
-      - 'gh-pages'
-  pull_request:
-    tags-ignore:
-      - 'v*'
-    branches-ignore:
-      - 'gh-pages'
+    tags:
+      - 'buildSnapshot'
 
 # The job
 jobs:

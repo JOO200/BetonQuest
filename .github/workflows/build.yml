@@ -160,11 +160,6 @@ jobs:
       - name: Build with mkdocs
         run: mkdocs build
 
-      - name: Deploy to Github Pages
-        if: "github.ref == 'refs/heads/master' || startsWith(github.ref,'refs/tags/v')"
-        run: |
-          bash scripts/mkdocs.sh
-
       - name: Upload Documentation
         uses: actions/upload-artifact@v1
         with:
@@ -196,6 +191,11 @@ jobs:
         with:
           name: BetonQuest-Documentation
           path: build/docs
+
+      - name: Deploy to Github Pages
+        if: "github.ref == 'refs/heads/master' || startsWith(github.ref,'refs/tags/v')"
+        run: |
+          bash scripts/mkdocs.sh
 
       - name: Create Release
         # The since last release string will retrieve all commits since the last tag, else if none is found
