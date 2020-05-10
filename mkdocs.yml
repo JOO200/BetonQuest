@@ -1,10 +1,12 @@
-site_name: BetonQuest
+site_name: BetonQuest - UNOFFICIAL
 site_author: Co0sh and contributors
 site_url: https://betonquest.pl
+site_dir: build/docs
 repo_name: BetonQuest/BetonQuest
 repo_url: https://github.com/BetonQuest/BetonQuest
 edit_uri: ""
 copyright: '© 2020  Jakub "Co0sh" Sapalski  & Contributers. GPLv3'
+
 
 extra_css:
   - 'css/mkpdf.css'
@@ -64,11 +66,11 @@ plugins:
   - search
   - git-revision-date-localized:
       type: timeago
-#  - mkpdfs:
-#      author: Co0sh and contributors
-#      toc_title: Table of contents
-#      output_path: pdf/documentation.pdf
-#      design: docs/css/pdf.css
+  - mkpdfs:
+      author: Co0sh and contributors
+      toc_title: Table of contents
+      output_path: pdf/documentation.pdf
+      design: docs/css/pdf.css
 
 
 # Discord not yet supported but it will be soon

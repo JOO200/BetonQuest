@@ -134,7 +134,3 @@ deploy-key
 **/build/
 .classpath
 .project
-
-# Ignore mkdocs
-site/
-gh-pages/

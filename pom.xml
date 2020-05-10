@@ -589,8 +589,7 @@
                             <goal>copy</goal>
                         </goals>
                         <configuration>
-                            <sourceFile>${project.build.directory}/${project.name}-${project.version}-shaded.jar
-                            </sourceFile>
+                            <sourceFile>${project.build.directory}/${project.name}-${project.version}-shaded.jar</sourceFile>
                             <destinationFile>${project.build.directory}/${project.name}.jar</destinationFile>
                         </configuration>
                     </execution>
