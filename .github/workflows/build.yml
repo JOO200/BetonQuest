@@ -211,71 +211,90 @@ jobs:
           name: BetonQuest-Docs
           path: build/docs
 
+      - name: Create release
+        uses: docker://antonyurchenko/git-release:latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DRAFT_RELEASE: "false"
+          PRE_RELEASE: "false"
+          CHANGELOG_FILE: "CHANGELOG.md"
+          ALLOW_EMPTY_CHANGELOG: "false"
+          ALLOW_TAG_PREFIX: "true"
+        with:
+          args: |
+            build/darwin-amd64.zip
+            build/linux-amd64.zip
+            build/windows-amd64.zip
+
+      - name: Upload release asset Jar
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/output/BetonQuest.jar
+          asset_name: BetonQuest.jar
+          asset_content_type: application/jar
+
+      - name: Upload release asset Doc
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/docs/pdf/documentation.pdf
+          asset_name: BetonQuest.pdf
+          asset_content_type: application/pdf
+
       - name: Deploy to Github Pages
         if: "github.ref == 'refs/heads/master' || startsWith(github.ref,'refs/tags/v')"
         run: |
           bash scripts/mkdocs.sh
 
-      - name: Create Release
-        # The since last release string will retrieve all commits since the last tag, else if none is found
-        # it will return from the start of history, then pretty it up to show single line logs for each entry
-        run: |
-          set -x
-          assets=()
-          for asset in ./build/output/*.jar; do
-            assets+=("-a" "$asset")
-          done
-          assets+=("-a" "build/docs/pdf/documentation.pdf#BetonQuest-Docs.pdf")
+#      - name: Publish to SpigotMC
+#        run: |
+#          set -x
+#          assets=()
+#          for asset in ./build/binary/*.jar; do
+#            assets+=("$asset")
+#          done
+#          tag_name="${GITHUB_REF##*/}"
+#
+#          docker login -u gitlab+deploy-token-2 -p ${DEPLOY_TOKEN} https://registry.worldguard.com.au
+#          cat > config.yml << EOF
+#          common:
+#            spigot:
+#              username: ${SPIGOT_USERNAME}
+#              password: ${SPIGOT_PASSWORD}
+#          EOF
+#
+#          docker run -i \
+#            --shm-size=2g \
+#            -v $(pwd)/config.yml:/app/config/config.yml \
+#            -v $(pwd)/build:/app/build \
+#            registry.worldguard.com.au/bgrieve/spigot_tools:latest app resource add-version \
+#              portal-network.78053 \
+#              ${assets[0]} \
+#              ${tag_name} \
+#              "Release ${tag_name}" << EOF
+#          [plain]
+#          Release $tag_name
+#
+#          Since Last Release:
+#          $(git log $(git describe --tags --abbrev=0 HEAD^ 2> /dev/null || git rev-list --max-parents=0 HEAD)..HEAD --graph --pretty=format:'%h %d %s [%an]' --abbrev-commit)
+#          [/plain]
+#          EOF
+#        env:
+#          DEPLOY_TOKEN: ${{ secrets.GITLAB_DEPLOY_TOKEN }}
+#          SPIGOT_USERNAME: ${{ secrets.SPIGOT_USERNAME }}
+#          SPIGOT_PASSWORD: ${{ secrets.SPIGOT_PASSWORD }}
 
-          tag_name="${GITHUB_REF##*/}"
-          hub release create \
-            "${assets[@]}" \
-            -F - \
-            "$tag_name" << EOF
-          Release $tag_name
-
-          [Online Docs](https://betonquest.github.io/BetonQuest)
-
-          Since Last Release:
-          $(git log $(git describe --tags --abbrev=0 HEAD^ 2> /dev/null || git rev-list --max-parents=0 HEAD)..HEAD --graph --pretty=format:'%h %d %s [%an]' --abbrev-commit)
-          EOF
+      - name: Publish to Discord
+        if: always() && github.repository == 'BetonQuest/BetonQuest'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish to SpigotMC
+          JOB_STATUS: ${{ job.status }}
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+          VERSION: ${{ env.VERSION }}
         run: |
-          set -x
-          assets=()
-          for asset in ./build/binary/*.jar; do
-            assets+=("$asset")
-          done
-          tag_name="${GITHUB_REF##*/}"
-
-          docker login -u gitlab+deploy-token-2 -p ${DEPLOY_TOKEN} https://registry.worldguard.com.au
-          cat > config.yml << EOF
-          common:
-            spigot:
-              username: ${SPIGOT_USERNAME}
-              password: ${SPIGOT_PASSWORD}
-          EOF
-
-          docker run -i \
-            --shm-size=2g \
-            -v $(pwd)/config.yml:/app/config/config.yml \
-            -v $(pwd)/build:/app/build \
-            registry.worldguard.com.au/bgrieve/spigot_tools:latest app resource add-version \
-              portal-network.78053 \
-              ${assets[0]} \
-              ${tag_name} \
-              "Release ${tag_name}" << EOF
-          [plain]
-          Release $tag_name
-
-          Since Last Release:
-          $(git log $(git describe --tags --abbrev=0 HEAD^ 2> /dev/null || git rev-list --max-parents=0 HEAD)..HEAD --graph --pretty=format:'%h %d %s [%an]' --abbrev-commit)
-          [/plain]
-          EOF
-        env:
-          DEPLOY_TOKEN: ${{ secrets.GITLAB_DEPLOY_TOKEN }}
-          SPIGOT_USERNAME: ${{ secrets.SPIGOT_USERNAME }}
-          SPIGOT_PASSWORD: ${{ secrets.SPIGOT_PASSWORD }}
+          if [ -z ${{ secrets.WEBHOOK_URL }} ]; then echo "The secret variable 'WEBHOOK_URL' in GitHub is not set. Set it with a valid Discord webhook, if you want to run the 'discord.sh'. You may need to change some urls in the script!"; exit 0; fi
+          bash scripts/discord.sh $JOB_STATUS $WEBHOOK_URL

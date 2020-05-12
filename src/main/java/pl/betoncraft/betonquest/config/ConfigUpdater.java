@@ -3294,11 +3294,11 @@ public class ConfigUpdater {
      */
     private void addChangelog() {
         try {
-            File changelog = new File(BetonQuest.getInstance().getDataFolder(), "changelog.txt");
+            File changelog = new File(BetonQuest.getInstance().getDataFolder(), "CHANGELOG.md");
             if (changelog.exists()) {
                 changelog.delete();
             }
-            Files.copy(BetonQuest.getInstance().getResource("changelog.txt"), changelog.toPath());
+            Files.copy(BetonQuest.getInstance().getResource("CHANGELOG.md"), changelog.toPath());
             LogUtils.getLogger().log(Level.INFO, "Changelog added!");
         } catch (IOException e) {
             LogUtils.getLogger().log(Level.WARNING, "Couldn't add a Changelog file:" + e.getMessage());

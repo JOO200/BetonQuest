@@ -500,6 +500,7 @@
             <version>3.6.1</version>
         </dependency>
     </dependencies>
+
     <build>
         <finalName>${project.name}-${project.version}</finalName>
         <sourceDirectory>src/main/java</sourceDirectory>
@@ -522,6 +523,7 @@
                 <filtering>true</filtering>
                 <includes>
                     <include>LICENSE</include>
+                    <include></include>
                 </includes>
             </resource>
         </resources>
