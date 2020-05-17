@@ -21,7 +21,7 @@ And if you're using Maven simply add this to your _pom.xml_:
 
 <dependencies>
     <dependency>
-        <groupId>pl.betoncraft.betonquest</groupId>
+        <groupId>pl.betoncraft.betonquest_oldpl.betoncraft.betonquest_old</groupId>
         <artifactId>BetonQuest</artifactId>
         <version>1.8.5</version>
     </dependency>
@@ -100,7 +100,7 @@ Registering the conversation inputs/outputs is done in the same way as objective
 
 ## Listening to BetonQuest (Bukkit) events
 
-BetonQuest calls Bukkit events on a few occasions: when a conversation is started, finished and when an option is selected. You can find these events in `pl.betoncraft.betonquest.api` package and use them in your plugins. If you need any additional events just open and issue on GitHub or send me a pull request.
+BetonQuest calls Bukkit events on a few occasions: when a conversation is started, finished and when an option is selected. You can find these events in `pl.betoncraft.betonquest_old.api` package and use them in your plugins. If you need any additional events just open and issue on GitHub or send me a pull request.
 
 ## Debugging
 

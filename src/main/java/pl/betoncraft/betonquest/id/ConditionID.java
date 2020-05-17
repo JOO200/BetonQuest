@@ -17,7 +17,7 @@
  */
 package pl.betoncraft.betonquest.id;
 
-import pl.betoncraft.betonquest.config.ConfigPackage;
+import pl.betoncraft.betonquest_old.config.ConfigPackage;
 import pl.betoncraft.betonquest.exceptions.ObjectNotFoundException;
 
 public class ConditionID extends ID {
@@ -28,9 +28,6 @@ public class ConditionID extends ID {
         super(pack, removeExclamationMark(id));
         this.inverted = id.startsWith("!");
         rawInstruction = super.pack.getString("conditions." + super.id);
-        if (rawInstruction == null) {
-            throw new ObjectNotFoundException("Condition '" + getFullID() + "' is not defined");
-        }
     }
 
     private static String removeExclamationMark(String id) {

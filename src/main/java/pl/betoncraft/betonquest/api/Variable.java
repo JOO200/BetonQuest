@@ -17,8 +17,9 @@
  */
 package pl.betoncraft.betonquest.api;
 
-import pl.betoncraft.betonquest.Instruction;
-import pl.betoncraft.betonquest.config.ConfigPackage;
+import pl.betoncraft.betonquest.registry.RegistryEntry;
+import pl.betoncraft.betonquest_old.Instruction;
+import pl.betoncraft.betonquest_old.config.ConfigPackage;
 import pl.betoncraft.betonquest.exceptions.InstructionParseException;
 
 /**
@@ -26,17 +27,9 @@ import pl.betoncraft.betonquest.exceptions.InstructionParseException;
  *
  * @author Jakub Sapalski
  */
-abstract public class Variable {
+abstract public class Variable<T> implements RegistryEntry {
 
-    /**
-     * Stores instruction string for the condition.
-     */
-    protected Instruction instruction;
-
-    /**
-     * ConfigPackage in which this condition is defined
-     */
-    protected ConfigPackage pack;
+    private String id;
 
     /**
      * Creates new instance of the variable. The variable should parse the
@@ -48,8 +41,8 @@ abstract public class Variable {
      *                    extract all required data from it and throw
      *                    {@link InstructionParseException} if there is anything wrong
      */
-    public Variable(Instruction instruction) {
-        this.instruction = instruction;
+    public Variable(String id) {
+        this.id = id;
     }
 
     /**
@@ -62,6 +55,11 @@ abstract public class Variable {
 
     @Override
     public String toString() {
-        return instruction.getInstruction();
+        return id;
+    }
+
+    @Override
+    public String getId() {
+        return id;
     }
 }

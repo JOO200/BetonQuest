@@ -18,9 +18,9 @@
 
 package pl.betoncraft.betonquest.id;
 
-import pl.betoncraft.betonquest.Instruction;
-import pl.betoncraft.betonquest.VariableInstruction;
-import pl.betoncraft.betonquest.config.ConfigPackage;
+import pl.betoncraft.betonquest_old.Instruction;
+import pl.betoncraft.betonquest_old.VariableInstruction;
+import pl.betoncraft.betonquest_old.config.ConfigPackage;
 import pl.betoncraft.betonquest.exceptions.ObjectNotFoundException;
 
 public class GlobalVariableID extends ID {

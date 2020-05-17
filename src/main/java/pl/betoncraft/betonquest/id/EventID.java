@@ -17,17 +17,16 @@
  */
 package pl.betoncraft.betonquest.id;
 
-import pl.betoncraft.betonquest.config.ConfigPackage;
+import pl.betoncraft.betonquest_old.config.ConfigPackage;
 import pl.betoncraft.betonquest.exceptions.ObjectNotFoundException;
 
 public class EventID extends ID {
 
-    public EventID(ConfigPackage pack, String id) throws ObjectNotFoundException {
+    public EventID(ConfigPackage pack, String id) {
         super(pack, id);
         rawInstruction = super.pack.getString("events." + super.id);
         if (rawInstruction == null) {
-            throw new ObjectNotFoundException("Event '" + getFullID() + "' is not defined");
+          //  throw new ObjectNotFoundException("Event '" + getFullID() + "' is not defined");
         }
     }
-
 }

@@ -17,9 +17,9 @@
  */
 package pl.betoncraft.betonquest.id;
 
-import pl.betoncraft.betonquest.Instruction;
-import pl.betoncraft.betonquest.config.Config;
-import pl.betoncraft.betonquest.config.ConfigPackage;
+import pl.betoncraft.betonquest_old.Instruction;
+import pl.betoncraft.betonquest_old.config.Config;
+import pl.betoncraft.betonquest_old.config.ConfigPackage;
 import pl.betoncraft.betonquest.exceptions.ObjectNotFoundException;
 
 public abstract class ID {
@@ -128,7 +128,7 @@ public abstract class ID {
             return null;
         }
         if (instruction == null) {
-            instruction = new Instruction(pack, this, rawInstruction);
+            //instruction = new Instruction(pack, this, rawInstruction);
         }
         return instruction;
     }

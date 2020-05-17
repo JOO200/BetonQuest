@@ -1,6 +1,6 @@
 package pl.betoncraft.betonquest.utils;
 
-import pl.betoncraft.betonquest.BetonQuest;
+import pl.betoncraft.betonquest_old.BetonQuest;
 
 import java.io.File;
 import java.io.IOException;
