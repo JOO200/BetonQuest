@@ -24,88 +24,116 @@ import pl.betoncraft.betonquest.exceptions.ObjectNotFoundException;
 
 public abstract class ID {
 
-    public static final String upStr = "_"; // string used as "up the hierarchy" package
+    /**
+     * String used as "up the hierarchy" package
+     */
+    public static final String UP_STR = "_";
+    /**
+     * String used as package separator
+     */
+    public static final String PACK_STR = "-";
+    /**
+     * String user as package id boarder
+     */
+    public static final String SEPARATOR_STR = ">";
 
-    protected String id;
-    protected ConfigPackage pack;
-    protected Instruction instruction;
-    protected String rawInstruction;
+    /**
+     * The resolved package
+     */
+    private final ConfigPackage pack;
+    /**
+     * The resolved id
+     */
+    private String id;
 
-    public ID(ConfigPackage pack, String id) throws ObjectNotFoundException {
-
-        // id must be specified
-        if (id == null || id.length() == 0) {
-            throw new ObjectNotFoundException("ID is null");
+    public ID(final ConfigPackage pack, final String fullId) throws ObjectNotFoundException {
+        if (fullId == null || fullId.length() == 0) {
+            throw new ObjectNotFoundException("ID is null!");
         }
 
-        // resolve package name
-        if (id.contains(".")) {
-            // id has specified a package, get it!
-            int dotIndex = id.indexOf('.');
-            String packName = id.substring(0, dotIndex);
-            if (pack != null && packName.startsWith(upStr + "-")) {
-                // resolve relative name if we have a supplied package
-                String[] root = pack.getName().split("-");
-                String[] path = packName.split("-");
-                // count how many packages up we need to go
-                int stepsUp = 0;
-                while (stepsUp < path.length && path[stepsUp].equals(upStr)) {
-                    stepsUp++;
-                }
-                // can't go out of BetonQuest folder of course
-                if (stepsUp > root.length) {
-                    throw new ObjectNotFoundException("Relative path goes out of package scope! Consider removing a few '"
-                            + upStr + "'s in ID " + id);
-                }
-                // construct the final absolute path
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < root.length - stepsUp; i++) {
-                    sb.append(root[i] + '-');
-                }
-                for (int i = stepsUp; i < path.length; i++) {
-                    sb.append(path[i] + '-');
-                }
-                String absolute = sb.substring(0, sb.length() - 1);
-                this.pack = Config.getPackages().get(absolute);
-                // throw error earlier so it can have more information than default one at the bottom
-                if (this.pack == null) {
-                    throw new ObjectNotFoundException("Relative path in ID '" + id + "' resolved to '" + absolute +
-                            "', but this package does not exist");
-                }
-            } else {
-                // use package name as absolute path if no relative path is available
-                this.pack = Config.getPackages().get(packName);
+        if (fullId.contains(SEPARATOR_STR)) {
+            final String[] idParts = fullId.split(SEPARATOR_STR);
+            final String packName = idParts[0];
+            final String idName = idParts[1];
+            this.pack = packName.startsWith(UP_STR + PACK_STR) ? resolveRelative(pack, packName)
+                    : Config.getPackages().get(packName);
+            if (idName.length() == 0) {
+                throw new ObjectNotFoundException("ID of the pack '" + this.pack + "' is null!");
             }
-            if(id.length() == dotIndex + 1) {
-                throw new ObjectNotFoundException("ID of the pack '" + this.pack + "' is null");
-            }
-            this.id = id.substring(dotIndex + 1);
+            this.id = idName;
         } else {
-            // id does not specify package, use supplied package
-            if (pack != null) {
-                this.pack = pack;
-            } else {
-                this.pack = Config.getDefaultPackage();
-            }
-            this.id = id;
+            this.pack = pack == null ? Config.getDefaultPackage() : pack;
+            this.id = fullId;
         }
 
-        // no package yet? this is an error
         if (this.pack == null) {
-            throw new ObjectNotFoundException("Package in ID '" + id + "' does not exist");
+            throw new ObjectNotFoundException("Package in ID '" + fullId + "' does not exist!");
         }
     }
 
+    private ConfigPackage resolveRelative(final ConfigPackage pack, final String relative)
+            throws ObjectNotFoundException {
+        if (pack == null) {
+            throw new ObjectNotFoundException("Package for relative Path '" + relative + "'is null!");
+        }
+        final String[] packPath = pack.getName().split(PACK_STR);
+        final String[] relativePath = relative.split(PACK_STR);
+
+        final int stepsUp = countStepsUp(packPath, relativePath);
+        final String absolutPath = buildAbsolutePath(packPath, relativePath, stepsUp);
+
+        final ConfigPackage absolutPack = Config.getPackages().get(absolutPath);
+        if (absolutPack == null) {
+            throw new ObjectNotFoundException("Relative path in ID '" + relative + "' resolved to '" + absolutPath +
+                    "', but this package does not exist!");
+        }
+        return absolutPack;
+    }
+
+    private int countStepsUp(final String[] packPath, final String[] relativePath) throws ObjectNotFoundException {
+        int stepsUp = 0;
+        while (stepsUp < relativePath.length && relativePath[stepsUp].equals(UP_STR)) {
+            stepsUp++;
+        }
+        if (stepsUp > packPath.length) {
+            throw new ObjectNotFoundException(
+                    "Relative path goes out of package scope! Consider removing a few '"
+                            + UP_STR + "'s in ID '" + String.join(PACK_STR, relativePath) + "'.");
+        }
+        return stepsUp;
+    }
+
+    private String buildAbsolutePath(final String[] packPath, final String[] relativePath, final int stepsUp) {
+        final StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < packPath.length - stepsUp; i++) {
+            sb.append(packPath[i]).append(PACK_STR);
+        }
+        for (int i = stepsUp; i < relativePath.length; i++) {
+            sb.append(relativePath[i]).append(PACK_STR);
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        return sb.toString();
+    }
+
+    /**
+     * @return The resolved package
+     */
     public ConfigPackage getPackage() {
         return pack;
     }
 
+    /**
+     * @return The resolved ID
+     */
     public String getBaseID() {
         return id;
     }
 
+    /**
+     * @return The full ID that contains pack and ID
+     */
     public String getFullID() {
-        return pack.getName() + "." + getBaseID();
+        return pack.getName() + SEPARATOR_STR + getBaseID();
     }
 
     @Override
@@ -114,23 +142,14 @@ public abstract class ID {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (o instanceof ID) {
-            ID id = (ID) o;
+            final ID id = (ID) o;
             return id.id.equals(this.id) &&
                     id.pack.equals(this.pack);
         }
         return false;
     }
 
-    public Instruction generateInstruction() {
-        if (rawInstruction == null) {
-            return null;
-        }
-        if (instruction == null) {
-            //instruction = new Instruction(pack, this, rawInstruction);
-        }
-        return instruction;
-    }
 
 }

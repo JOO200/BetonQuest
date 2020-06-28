@@ -3,7 +3,7 @@ package pl.betoncraft.betonquest.api;
 import pl.betoncraft.betonquest.api.objective.Objective;
 import pl.betoncraft.betonquest.id.ObjectiveID;
 
-import java.io.Serializable;
+import java.util.Locale;
 import java.util.UUID;
 
 public interface PlayerProfile {
@@ -14,7 +14,10 @@ public interface PlayerProfile {
     void addRawObjective(ObjectiveID objectiveID);
     boolean hasActiveObjective(ObjectiveID objectiveID);
 
-    void setObjectiveData(ObjectiveID id, Serializable context);
-    <U extends Serializable> U getObjectiveData(ObjectiveID id, Objective<?, U> objective);
+    void setObjectiveData(ObjectiveID id, Object context);
+    <U> U getObjectiveData(ObjectiveID id, Objective<?, U> objective);
+
+    Locale getLocale();
+    void setLocale(Locale locale);
 
 }

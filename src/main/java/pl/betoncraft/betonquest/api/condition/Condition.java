@@ -22,6 +22,7 @@ import pl.betoncraft.betonquest.api.PlayerProfile;
 import pl.betoncraft.betonquest.exceptions.InstructionParseException;
 import pl.betoncraft.betonquest.exceptions.QuestRuntimeException;
 import pl.betoncraft.betonquest.id.ConditionID;
+import pl.betoncraft.betonquest.internal.conditions.InvertedCondition;
 import pl.betoncraft.betonquest.registry.RegistryEntry;
 import pl.betoncraft.betonquest.utils.LogUtils;
 import pl.betoncraft.betonquest.utils.yaml.YAMLNode;
@@ -89,8 +90,9 @@ public abstract class Condition<T> implements RegistryEntry {
 
     public ConditionData<T> create(ConditionID id, YAMLNode node) throws InstructionParseException {
         YAMLNode context = node.getNode("context");
-        T type = unmarshal(context);
-        return new ConditionData<>(id, this, type);
+        ConditionData<T> tConditionData = new ConditionData<>(id, this);
+        tConditionData.unmarshall(context);
+        return tConditionData;
     }
 
 
@@ -104,7 +106,9 @@ public abstract class Condition<T> implements RegistryEntry {
 
     public static boolean checkCondition(ConditionID condition, PlayerProfile profile) {
         try {
-            if (!BetonQuest.getInstance().getConditions().get(condition).check(profile)) return true;
+            ConditionData<?> conditionData = BetonQuest.getInstance().getConditions().get(condition);
+            boolean isInverted = condition.isInverted();
+            if (conditionData.check(profile) != isInverted) return true;
         } catch (QuestRuntimeException e) {
             LogUtils.getLogger().warning("QuestRuntimeException while checkConditions."); //TODO Logging
             e.printStackTrace();

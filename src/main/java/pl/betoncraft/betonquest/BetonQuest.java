@@ -1,5 +1,6 @@
 package pl.betoncraft.betonquest;
 
+import co.aikar.commands.BukkitCommandManager;
 import co.aikar.commands.PaperCommandManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import pl.betoncraft.betonquest.api.event.QuestEventData;
@@ -11,11 +12,13 @@ import pl.betoncraft.betonquest.id.ConditionID;
 import pl.betoncraft.betonquest.id.EventID;
 import pl.betoncraft.betonquest.id.ObjectiveID;
 import pl.betoncraft.betonquest.internal.conditions.Conditions;
+import pl.betoncraft.betonquest.internal.events.QuestEvents;
 import pl.betoncraft.betonquest.internal.objectives.Objectives;
 import pl.betoncraft.betonquest.registry.BetonQuestRegistry;
 import pl.betoncraft.betonquest.registry.SimpleBetonQuestRegistry;
 import pl.betoncraft.betonquest.api.condition.ConditionData;
 import pl.betoncraft.betonquest.api.objective.ObjectiveData;
+import pl.betoncraft.betonquest.utils.DataSerializer;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,6 +38,8 @@ public class BetonQuest extends JavaPlugin {
 
     private ConcurrentMap<Class<? extends Objective<?, ?>>, Set<ObjectiveData<?>>> objectiveByType = new ConcurrentHashMap<>();
 
+    private ConcurrentMap<Class<?>, DataSerializer<?>> serializerByClazz = new ConcurrentHashMap<>();
+
     private PaperCommandManager commandManager;
 
     @Override
@@ -42,6 +47,7 @@ public class BetonQuest extends JavaPlugin {
         instance = this;
         Conditions.registerAll();
         Objectives.registerAll();
+        QuestEvents.registerAll();
     }
 
     @Override
@@ -85,5 +91,18 @@ public class BetonQuest extends JavaPlugin {
 
     public ConcurrentMap<Class<? extends Objective<?, ?>>, Set<ObjectiveData<?>>> getObjectiveByType() {
         return objectiveByType;
+    }
+
+    public <T> void registerSerializer(Class<T> clazz, DataSerializer<T> serializer) {
+        this.serializerByClazz.put(clazz, serializer);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> DataSerializer<T> getSerializer(Class<T> clazz) {
+        return (DataSerializer<T>) this.serializerByClazz.get(clazz);
+    }
+
+    public PaperCommandManager getCommandManager() {
+        return commandManager;
     }
 }

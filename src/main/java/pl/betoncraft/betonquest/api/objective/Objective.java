@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
  *
  * @author Jakub Sapalski
  */
-public abstract class Objective<T, U extends Serializable> implements RegistryEntry {
+public abstract class Objective<T, U> implements RegistryEntry {
 
     private String id;
 

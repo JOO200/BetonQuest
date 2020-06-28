@@ -237,93 +237,10 @@ public class Config {
     }
 
     /**
-     * Retrieves the message from the configuration in specified language
-     *
-     * @param message name of the message to retrieve
-     * @param lang    language in which the message should be retrieved
-     * @return message in that language, or message in English, or null if it
-     * does not exist
-     */
-    public static String getMessage(String lang, String message) {
-        return getMessage(lang, message, null);
-    }
-
-    /**
      * @return the map of packages and their names
      */
     public static Map<String, ConfigPackage> getPackages() {
         return packages;
-    }
-
-    /**
-     * Retrieves the string from across all configuration. The variables are not
-     * replaced! To replace variables automatically just call getString() method
-     * on ConfigPackage.
-     *
-     * @param address address of the string
-     * @return the requested string
-     */
-    public static String getString(String address) {
-        if (address == null)
-            return null;
-        String[] parts = address.split("\\.");
-        if (parts.length < 2)
-            return null;
-        String main = parts[0];
-        if (main.equals("config")) {
-            return plugin.getConfig().getString(address.substring(7));
-        } else if (main.equals("messages")) {
-            return messages.getConfig().getString(address.substring(9));
-        } else {
-            ConfigPackage pack = packages.get(main);
-            if (pack == null)
-                return null;
-            return pack.getRawString(address.substring(main.length() + 1));
-        }
-    }
-
-    /**
-     * Sets the string at specified address
-     *
-     * @param address address of the variable
-     * @param value   value that needs to be set
-     * @return true if it was set, false otherwise
-     */
-    public static boolean setString(String address, String value) {
-        if (address == null)
-            return false;
-        String[] parts = address.split("\\.");
-        if (parts.length < 2)
-            return false;
-        String main = parts[0];
-        if (main.equals("config")) {
-            plugin.getConfig().set(address.substring(7), value);
-            plugin.saveConfig();
-            return true;
-        } else if (main.equals("messages")) {
-            messages.getConfig().set(address.substring(9), value);
-            messages.saveConfig();
-            return true;
-        } else {
-            ConfigPackage pack = packages.get(main);
-            if (pack == null)
-                return false;
-            return pack.setString(address.substring(main.length() + 1), value);
-        }
-    }
-
-    /**
-     * @return messages configuration
-     */
-    public static ConfigAccessor getMessages() {
-        return messages;
-    }
-
-    /**
-     * @return the default language
-     */
-    public static String getLanguage() {
-        return lang;
     }
 
     /**
